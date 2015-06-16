@@ -49,7 +49,7 @@ public class BasicEntityExtractor implements Extractor {
 
   private static final Class<? extends CoreAnnotation<String>> annotationForWord = TextAnnotation.class;
 
-  private static final boolean SAVE_CONLL_2003 = false;
+  private static final boolean SAVE_CONLL_2003 = true;
 
   protected String gazetteerLocation;
 

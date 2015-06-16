@@ -15,6 +15,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
 
+import edu.stanford.nlp.ie.machinereading.BasicEntityExtractor;
 import edu.stanford.nlp.ie.machinereading.GenericDataSetReader;
 import edu.stanford.nlp.ie.machinereading.domains.ace.reader.AceCharSeq;
 import edu.stanford.nlp.ie.machinereading.domains.ace.reader.AceDocument;
@@ -287,13 +288,14 @@ public class AceReader extends GenericDataSetReader {
         }
         EntityMention convertedMention = convertAceEntityMention(aceEntityMention, docId, sentence, tokenOffset, corefID);
 //        EntityMention convertedMention = convertAceEntityMention(aceEntityMention, docId, sentence, tokenOffset);
-        entityCounts.incrementCount(convertedMention.getType());
-        logger.info("CONVERTED MENTION HEAD SPAN: " + convertedMention.getHead());
-        logger.info("CONVERTED ENTITY MENTION: " + convertedMention);
-        AnnotationUtils.addEntityMention(sentence, convertedMention);
-        entityMentionMap.put(aceEntityMention.getId(), convertedMention);
-
-        // TODO: make Entity objects as needed
+        if (convertedMention.getMentionType().equals("NAM")) {
+        	entityCounts.incrementCount(convertedMention.getType());
+	        logger.info("CONVERTED MENTION HEAD SPAN: " + convertedMention.getHead());
+	        logger.info("CONVERTED ENTITY MENTION: " + convertedMention);
+	        AnnotationUtils.addEntityMention(sentence, convertedMention);
+	        entityMentionMap.put(aceEntityMention.getId(), convertedMention);
+        }
+	        // TODO: make Entity objects as needed
       }
 
       // convert relation mentions
@@ -477,7 +479,7 @@ public class AceReader extends GenericDataSetReader {
         entityMention.getLdctype());
     return converted;
   }
-
+  
   private EntityMention convertAceEntityMention(AceEntityMention entityMention, String docId, CoreMap sentence, int tokenOffset, String corefID) {
     EntityMention converted = convertAceEntityMention(entityMention, docId, sentence, tokenOffset);
     converted.setCorefID(corefID);
@@ -485,13 +487,24 @@ public class AceReader extends GenericDataSetReader {
   }
 
   // simple testing code
-  public static void main(String[] args) throws IOException {
+  public static void main(String[] args) throws IOException, SAXException, ParserConfigurationException {
     Properties props = StringUtils.argsToProperties(args);
-    AceReader r = new AceReader(new StanfordCoreNLP(props, false), false);
+    AceReader r = new AceReader();
     r.setLoggerLevel(Level.INFO);
-    r.parse("/scr/nlp/data/ACE2005/");
     // Annotation a = r.parse("/user/mengqiu/scr/twitter/nlp/corpus_prep/standalone/ar/data");
-    // BasicEntityExtractor.saveCoNLLFiles("/tmp/conll", a, false, false);
+    Annotation a = null;
+    a = r.read("/Users/konix/tmp/bc");
+    BasicEntityExtractor.saveCoNLLFiles("/Users/konix/tmp/conll/bc", a, false, false);
+    a = r.read("/Users/konix/tmp/bn");
+    BasicEntityExtractor.saveCoNLLFiles("/Users/konix/tmp/conll/bn", a, false, false);
+    a = r.read("/Users/konix/tmp/cts");
+    BasicEntityExtractor.saveCoNLLFiles("/Users/konix/tmp/conll/cts", a, false, false);
+    a = r.read("/Users/konix/tmp/nw");
+    BasicEntityExtractor.saveCoNLLFiles("/Users/konix/tmp/conll/nw", a, false, false);
+    a = r.read("/Users/konix/tmp/un");
+    BasicEntityExtractor.saveCoNLLFiles("/Users/konix/tmp/conll/un", a, false, false);
+    a = r.read("/Users/konix/tmp/wl");
+    BasicEntityExtractor.saveCoNLLFiles("/Users/konix/tmp/conll/wl", a, false, false);
     System.err.println("done");
   }
 
